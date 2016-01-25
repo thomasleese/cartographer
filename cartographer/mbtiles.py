@@ -2,6 +2,9 @@ import sqlite3
 
 
 class TilesetMetadata:
+    KNOWN_KEYS = ['name', 'type', 'version', 'description', 'format',
+                  'bounds', 'attribution']
+
     def __init__(self, db):
         self.db = db
 
@@ -48,7 +51,7 @@ class TilesetTiles:
         if cursor.rowcount == 0:
             cursor.execute("""
                 INSERT INTO
-                    metadata (zoom_level, tile_column, tile_row, tile_data)
+                    tiles (zoom_level, tile_column, tile_row, tile_data)
                 VALUES (?, ?, ?, ?)
             """, (zoom, x, y, value))
 
@@ -91,18 +94,6 @@ class Tileset:
         self.metadata = TilesetMetadata(self.db)
         self.tiles = TilesetTiles(self.db)
 
-        for name in ['name', 'type', 'version', 'description', 'format',
-                     'bounds', 'attribution']:
-            fget = lambda: self.metadata[name]
-
-            def fset(value):
-                self.metadata[name] = value
-
-            def fdel():
-                del self.metadata[name]
-
-            setattr(self, name, property(fget, fset, fdel))
-
         self.create_schema()
 
     def create_schema(self):
@@ -123,6 +114,24 @@ class Tileset:
                 tile_data BLOB
             );
         """)
+
+    def __getattr__(self, key):
+        if key in TilesetMetadata.KNOWN_KEYS:
+            return self.metadata[key]
+        else:
+            super().__getattr__(key)
+
+    def __setattr__(self, key, value):
+        if key in TilesetMetadata.KNOWN_KEYS:
+            self.metadata[key] = value
+        else:
+            super().__setattr__(key, value)
+
+    def __delattr__(self, key):
+        if key in TilesetMetadata.KNOWN_KEYS:
+            del self.metadata[key]
+        else:
+            super().__delattr__(key)
 
     def __setitem__(self, key, value):
         self.tiles[key] = value
