@@ -1,6 +1,6 @@
 import argparse
 
-from .importer import Importer
+from . import importers
 from .mbtiles import Tileset
 
 
@@ -38,7 +38,13 @@ def set_metadata(subparsers):
 def import_tiles(subparsers):
     def func(args):
         tileset = Tileset(args.filename)
-        importer = Importer(args.url)
+
+        if args.url == 'osm':
+            importer = importers.OpenStreetMapImporter()
+        elif args.url == 'satellite':
+            importer = importers.SatelliteImporter()
+        else:
+            importer = importers.Importer(args.url)
 
         for x in range(2 ** args.zoom_level):
             for y in range(2 ** args.zoom_level):
@@ -52,6 +58,23 @@ def import_tiles(subparsers):
     parser.set_defaults(func=func)
 
 
+def extract_tile(subparsers):
+    def func(args):
+        tileset = Tileset(args.filename)
+
+        tile = tileset.tiles[(args.zoom_level, args.row, args.col)]
+
+        with open('tile.{}'.format(tileset.format), 'wb') as file:
+            file.write(tile)
+
+    parser = subparsers.add_parser('extract-tile')
+    parser.add_argument('filename')
+    parser.add_argument('zoom_level', type=int)
+    parser.add_argument('row', type=int)
+    parser.add_argument('col', type=int)
+    parser.set_defaults(func=func)
+
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -59,6 +82,7 @@ def main():
     create_tileset(subparsers)
     import_tiles(subparsers)
     set_metadata(subparsers)
+    extract_tile(subparsers)
 
     args = parser.parse_args()
 

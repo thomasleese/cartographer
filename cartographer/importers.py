@@ -9,8 +9,12 @@ class Importer:
     def __init__(self, url):
         self.url = url
 
-    def get_tile_url(self, zoom, x, y):
-        return self.url.format(zoom=zoom, x=x, y=y)
+    def get_tile_url(self, zoom, row, col):
+        l = (2 ** zoom) - 1
+        nrow = l - row
+        ncol = l - col
+        return self.url.format(zoom=zoom, row=row, col=col, nrow=nrow,
+                               ncol=ncol)
 
     def compress(self, path, tile_format):
         if tile_format == 'png':
@@ -41,8 +45,8 @@ class Importer:
         else:
             raise ValueError('Unsupported map format: {}'.format(tile_format))
 
-    def __call__(self, tileset, zoom, x, y):
-        key = (zoom, x, y)
+    def __call__(self, tileset, zoom, row, col):
+        key = (zoom, row, col)
 
         try:
             tileset[key]
@@ -51,7 +55,7 @@ class Importer:
         else:
             return
 
-        url = self.get_tile_url(zoom, x, y)
+        url = self.get_tile_url(zoom, row, col)
         res = requests.get(url)
 
         if res.status_code == requests.codes.ok:
@@ -67,6 +71,15 @@ class Importer:
                     tileset[key] = file.read()
 
 
-class OpenStreetMapImporter:
+class OpenStreetMapImporter(Importer):
     def __init__(self):
-        super().__init__('http://tile.openstreetmap.org/{zoom}/{x}/{y}.png')
+        super().__init__(
+            'http://tile.openstreetmap.org/{zoom}/{row}/{ncol}.png'
+        )
+
+
+class SatelliteImporter(Importer):
+    def __init__(self):
+        super().__init__(
+            'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/Tile/{zoom}/{ncol}/{row}.jpg'
+        )
