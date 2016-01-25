@@ -43,13 +43,14 @@ def import_tiles(subparsers):
             importer = importers.OpenStreetMapImporter()
         elif args.url == 'satellite':
             importer = importers.SatelliteImporter()
+        elif args.url.startswith('os:'):
+            key = args.url[3:]
+            print(key)
+            importer = importers.OrdnanceSurveyImporter(key)
         else:
             importer = importers.Importer(args.url)
 
-        for x in range(2 ** args.zoom_level):
-            for y in range(2 ** args.zoom_level):
-                print('Importing:', args.zoom_level, x, y)
-                importer(tileset, args.zoom_level, x, y)
+        importer(tileset, args.zoom_level)
 
     parser = subparsers.add_parser('import-tiles')
     parser.add_argument('filename')
@@ -75,6 +76,15 @@ def extract_tile(subparsers):
     parser.set_defaults(func=func)
 
 
+def web(subparsers):
+    def func(args):
+        from .web import app
+        app.run(debug=True)
+
+    parser = subparsers.add_parser('web')
+    parser.set_defaults(func=func)
+
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -83,6 +93,7 @@ def main():
     import_tiles(subparsers)
     set_metadata(subparsers)
     extract_tile(subparsers)
+    web(subparsers)
 
     args = parser.parse_args()
 

@@ -1,4 +1,14 @@
+import math
+
 import sqlite3
+
+
+def deg2num(lat_deg, lon_deg, zoom):
+    lat_rad = math.radians(lat_deg)
+    n = 2.0 ** zoom
+    xtile = int((lon_deg + 180.0) / 360.0 * n)
+    ytile = int((1.0 - math.log(math.tan(lat_rad) + (1 / math.cos(lat_rad))) / math.pi) / 2.0 * n)
+    return (xtile, int(n - 1 - ytile))
 
 
 class TilesetMetadata:
@@ -73,6 +83,19 @@ class TilesetTiles:
         else:
             return row[0]
 
+    def __contains__(self, key):
+        zoom, x, y = key
+
+        cursor = self.db.cursor()
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM tiles
+            WHERE zoom_level = ? AND tile_column = ? AND tile_row = ?
+        """, (zoom, x, y))
+
+        row = cursor.fetchone()
+        return row[0] > 0
+
     def __delitem__(self, key):
         zoom, x, y = key
 
@@ -87,6 +110,30 @@ class TilesetTiles:
 
         self.db.commit()
 
+    def count(self, zoom=None, col=None, row=None):
+        sql = 'SELECT COUNT(*) FROM tiles WHERE '
+
+        where = []
+        args = []
+
+        if zoom is not None:
+            where.append('zoom_level = ?')
+            args.append(zoom)
+
+        if col is not None:
+            where.append('tile_column = ?')
+            args.append(col)
+
+        if row is not None:
+            where.append('tile_row = ?')
+            args.append(row)
+
+        sql += ' AND '.join(where)
+
+        cursor = self.db.cursor()
+        cursor.execute(sql, args)
+        row = cursor.fetchone()
+        return row[0]
 
 class Tileset:
     def __init__(self, filename):
@@ -115,6 +162,27 @@ class Tileset:
             );
         """)
 
+    @property
+    def coordinate_bounds(self):
+        tokens = [float(x) for x in self.bounds.split(',')]
+        return tuple(tokens)
+
+    def calculate_tile_bounds(self, zoom):
+        left, bottom, right, top = self.coordinate_bounds
+
+        bottom_left = deg2num(bottom, left, zoom)
+        top_right = deg2num(top, right, zoom)
+        return bottom_left[0], bottom_left[1], top_right[0], top_right[1]
+
+    @property
+    def mime_type(self):
+        if self.format == 'png':
+            return 'image/png'
+        elif self.format == 'jpg':
+            return 'image/jpeg'
+        else:
+            raise ValueError('Unsupported format.')
+
     def __getattr__(self, key):
         if key in TilesetMetadata.KNOWN_KEYS:
             return self.metadata[key]
@@ -141,3 +209,6 @@ class Tileset:
 
     def __delitem__(self, key):
         del self.tiles[key]
+
+    def __contains__(self, key):
+        return key in self.tiles

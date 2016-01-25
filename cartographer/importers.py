@@ -45,17 +45,19 @@ class Importer:
         else:
             raise ValueError('Unsupported map format: {}'.format(tile_format))
 
-    def __call__(self, tileset, zoom, row, col):
+    def import_tile(self, tileset, zoom, row, col, progress):
         key = (zoom, row, col)
 
-        try:
-            tileset[key]
-        except KeyError:
-            pass
-        else:
+        percentage = '{} %'.format(round(progress * 100, 1))
+
+        if key in tileset:
+            print('Skipped:', zoom, row, col, percentage)
             return
 
         url = self.get_tile_url(zoom, row, col)
+
+        print('Importing:', zoom, row, col, url, percentage)
+
         res = requests.get(url)
 
         if res.status_code == requests.codes.ok:
@@ -69,6 +71,30 @@ class Importer:
 
                 with path.open('rb') as file:
                     tileset[key] = file.read()
+        else:
+            print('Warning. This failed.')
+
+    def __call__(self, tileset, zoom):
+        left, bottom, right, top = tileset.calculate_tile_bounds(zoom)
+
+        print('Bounds:', left, bottom, right, top)
+
+        row_count = (right + 1) - left
+        col_count = (top + 1) - bottom
+
+        total = row_count * col_count
+
+        i = 0
+        for row in range(left, right + 1):
+            count = tileset.tiles.count(zoom=zoom, row=row)
+            if count == row_count:
+                i += col_count
+                continue
+
+            for col in range(bottom, top + 1):
+                progress = i / total
+                self.import_tile(tileset, zoom, row, col, progress)
+                i += 1
 
 
 class OpenStreetMapImporter(Importer):
@@ -83,3 +109,41 @@ class SatelliteImporter(Importer):
         super().__init__(
             'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/Tile/{zoom}/{ncol}/{row}.jpg'
         )
+
+
+class OrdnanceSurveyImporter(Importer):
+    def __init__(self, key):
+        super().__init__(
+            'http://ak.dynamic.t1.tiles.virtualearth.net/comp/ch/{quad_key}?mkt=en-GB&it=G,OS,BX,RL&shading=hill&n=z&og=113&key={key}&c4w=1'
+        )
+
+        self.key = key
+
+    @staticmethod
+    def calculate_quad_key(zoom, x, y):
+        key = ''
+        pow_result = pow(2, zoom)
+
+        x += 1
+        y += 1
+
+        for i in range(zoom):
+            pow_result = pow_result / 2
+            digit = 0
+            if x > pow_result:
+                digit += 1
+                x -= pow_result
+            if y > pow_result:
+                digit += 2
+                y -= pow_result
+            key += str(digit)
+
+        return key
+
+    def get_tile_url(self, zoom, row, col):
+        l = (2 ** zoom) - 1
+        ncol = l - col
+
+        quad_key = self.calculate_quad_key(zoom, row, ncol)
+
+        return self.url.format(quad_key=quad_key, key=self.key)
