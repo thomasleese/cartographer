@@ -10,6 +10,14 @@ Installation
 
     $ pip install -e .
 
+Features
+--------
+
+-  Command-line interface.
+-  Web-based tile importers, including OSM and Satellite imagery.
+-  Support for reading and writing MBTiles files.
+-  Web interface for viewing maps and tiles.
+
 Commands
 --------
 
