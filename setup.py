@@ -1,6 +1,7 @@
 from setuptools import find_packages, setup
 
 
+
 with open('README.rst') as file:
     long_description = file.read()
 
@@ -17,6 +18,7 @@ setup(
         'console_scripts': ['cartographer = cartographer.cli:main']
     },
     install_requires=[
-        'requests'
+        'requests',
+        'Flask'
     ]
 )
