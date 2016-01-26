@@ -50,3 +50,8 @@ class Country(Boundary, Enum):
 
 class Misc(Boundary, Enum):
     world = (-180, -85, 180, 85)
+
+
+def find_by_string(string):
+    clazz, name = string.split('.')
+    return globals()[clazz][name]

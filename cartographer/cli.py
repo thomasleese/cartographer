@@ -41,10 +41,7 @@ def set_metadata(subparsers):
 def set_boundary(subparsers):
     def func(args):
         tileset = Tileset(args.filename)
-
-        boundary_class, boundary_name = args.boundary.split('.')
-        boundary = getattr(boundaries, boundary_class)[boundary_name]
-
+        boundary = boundaries.find_by_string(args.boundary)
         tileset.boundary = boundary
 
     parser = subparsers.add_parser('set-boundary')
