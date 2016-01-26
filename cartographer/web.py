@@ -1,10 +1,17 @@
+from collections import defaultdict
 import io
+import os
+from pathlib import Path
 
 import flask
 
 from .mbtiles import Tileset
 
 app = flask.Flask(__name__)
+
+
+if 'CARTOGRAPHER_TILES_PATH' in os.environ:
+    app.config['TILES_PATH'] = os.environ['CARTOGRAPHER_TILES_PATH']
 
 
 HTML = """
@@ -14,7 +21,7 @@ HTML = """
     <head>
         <meta charset="UTF-8" />
 
-        <title>Map</title>
+        <title>{tileset} - Tileset</title>
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
@@ -51,24 +58,49 @@ HTML = """
 </html>
 """
 
-
-@app.route('/<tileset_name>')
-def serve_map(tileset_name):
-    return HTML.format(tileset=tileset_name)
+MAPS = defaultdict(list)
 
 
-@app.route('/<tileset_name>/<int:zoom>/<int:row>/<int:col>')
-def serve_tile(tileset_name, zoom, row, col):
-    tileset = Tileset(tileset_name)
+@app.before_first_request
+def load_tiles():
+    path = Path(app.config['TILES_PATH'])
+    for p in path.glob('*.mbtiles'):
+        tileset = Tileset(str(p))
+        name = tileset.name
 
+        app.logger.info('Registering tileset: {} ({})'.format(name, p))
+        for zoom_level in tileset.zoom_levels:
+            app.logger.info(' - Zoom level: {}'.format(zoom_level))
+            MAPS[(name, zoom_level)].append(tileset)
+
+
+def find_tile(name, zoom, row, col):
+    tilesets = MAPS[(name, zoom)]
+    ncol = (2 ** zoom) - 1 - col
+
+    for tileset in tilesets:
+        try:
+            return tileset[(zoom, row, ncol)], tileset
+        except KeyError:
+            pass
+
+    raise KeyError('No such tile.')
+
+
+@app.route('/<name>')
+def serve_map(name):
+    return HTML.format(tileset=name)
+
+
+@app.route('/<name>/<int:zoom>/<int:row>/<int:col>')
+def serve_tile(name, zoom, row, col):
     try:
-        ncol = (2 ** zoom) - 1 - col
-        tile = tileset[(zoom, row, ncol)]
-
-        stream = io.BytesIO(tile)
-        return flask.send_file(stream, mimetype=tileset.mime_type)
+        tile, tileset = find_tile(name, zoom, row, col)
     except KeyError:
         flask.abort(404)
+    else:
+        stream = io.BytesIO(tile)
+        return flask.send_file(stream, mimetype=tileset.mime_type)
 
 
 if __name__ == "__main__":

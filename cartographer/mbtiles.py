@@ -135,6 +135,13 @@ class TilesetTiles:
         row = cursor.fetchone()
         return row[0]
 
+    @property
+    def zoom_levels(self):
+        cursor = self.db.cursor()
+        cursor.execute('SELECT DISTINCT zoom_level FROM tiles')
+        return [row[0] for row in cursor.fetchall()]
+
+
 class Tileset:
     def __init__(self, filename):
         self.db = sqlite3.connect(filename)
@@ -182,6 +189,10 @@ class Tileset:
             return 'image/jpeg'
         else:
             raise ValueError('Unsupported format.')
+
+    @property
+    def zoom_levels(self):
+        return self.tiles.zoom_levels
 
     def __getattr__(self, key):
         if key in TilesetMetadata.KNOWN_KEYS:

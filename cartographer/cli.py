@@ -6,6 +6,9 @@ from .mbtiles import Tileset
 
 def create_tileset(subparsers):
     def func(args):
+        if args.description is None:
+            args.description = args.name
+
         tileset = Tileset(args.filename)
         tileset.name = args.name
         tileset.type = args.type
@@ -14,12 +17,12 @@ def create_tileset(subparsers):
         tileset.format = args.format
 
     parser = subparsers.add_parser('create-tileset')
-    parser.add_argument('name')
-    parser.add_argument('type')
-    parser.add_argument('version')
-    parser.add_argument('description')
-    parser.add_argument('format')
     parser.add_argument('filename')
+    parser.add_argument('name')
+    parser.add_argument('--type', '-t', default='baselayer')
+    parser.add_argument('--version', '-v', type=int, default=0)
+    parser.add_argument('--description', '-d', default=None)
+    parser.add_argument('--format', '-f', default='png')
     parser.set_defaults(func=func)
 
 
@@ -79,9 +82,11 @@ def extract_tile(subparsers):
 def web(subparsers):
     def func(args):
         from .web import app
+        app.config['TILES_PATH'] = args.tiles
         app.run(debug=True)
 
     parser = subparsers.add_parser('web')
+    parser.add_argument('tiles', default='tiles')
     parser.set_defaults(func=func)
 
 
