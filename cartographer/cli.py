@@ -65,12 +65,18 @@ def import_tiles(subparsers):
         else:
             importer = importers.Importer(args.url)
 
-        importer(tileset, args.zoom_level)
+        boundary = None
+        if args.boundary:
+            boundary = boundaries.find_by_string(args.boundary)
+
+        for zoom in args.zoom_level:
+            importer(tileset, zoom, boundary)
 
     parser = subparsers.add_parser('import-tiles')
     parser.add_argument('filename')
     parser.add_argument('url')
-    parser.add_argument('zoom_level', type=int)
+    parser.add_argument('zoom_level', type=int, nargs='+')
+    parser.add_argument('--boundary')
     parser.set_defaults(func=func)
 
 

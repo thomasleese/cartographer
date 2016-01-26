@@ -36,14 +36,17 @@ class Importer:
         else:
             print('Warning. This failed.')
 
-    def __call__(self, tileset, zoom):
+    def __call__(self, tileset, zoom, boundary=None):
         count = 2 ** zoom
         total = count * count
+
+        if boundary is None:
+            boundary = tileset.boundary
 
         i = 0
         for row in range(count):
             for col in range(count):
-                if tileset.boundary.contains(row, col, zoom):
+                if boundary.contains(row, col, zoom):
                     progress = i / total
                     self.import_tile(tileset, zoom, row, col, progress)
                 i += 1
