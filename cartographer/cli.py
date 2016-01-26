@@ -1,6 +1,6 @@
 import argparse
 
-from . import importers
+from . import boundaries, importers
 from .mbtiles import Tileset
 
 
@@ -35,6 +35,21 @@ def set_metadata(subparsers):
     parser.add_argument('filename')
     parser.add_argument('name')
     parser.add_argument('value')
+    parser.set_defaults(func=func)
+
+
+def set_boundary(subparsers):
+    def func(args):
+        tileset = Tileset(args.filename)
+
+        boundary_class, boundary_name = args.boundary.split('.')
+        boundary = getattr(boundaries, boundary_class)[boundary_name]
+
+        tileset.boundary = boundary
+
+    parser = subparsers.add_parser('set-boundary')
+    parser.add_argument('filename')
+    parser.add_argument('boundary')
     parser.set_defaults(func=func)
 
 
@@ -97,6 +112,7 @@ def main():
     create_tileset(subparsers)
     import_tiles(subparsers)
     set_metadata(subparsers)
+    set_boundary(subparsers)
     extract_tile(subparsers)
     web(subparsers)
 

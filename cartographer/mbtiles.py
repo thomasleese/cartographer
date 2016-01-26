@@ -191,6 +191,10 @@ class Tileset:
         tokens = [float(x) for x in self.bounds.split(',')]
         return Boundary(*tokens)
 
+    @boundary.setter
+    def boundary(self, value):
+        self.bounds = value.as_metadata()
+
     @property
     def mime_type(self):
         if self.format == 'png':

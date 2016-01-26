@@ -2,6 +2,15 @@ from enum import Enum
 import math
 
 
+def num2deg(xtile, ytile, zoom):
+    n = 2.0 ** zoom
+    ytile = n - 1 - ytile
+    lon_deg = xtile / n * 360.0 - 180.0
+    lat_rad = math.atan(math.sinh(math.pi * (1 - 2 * ytile / n)))
+    lat_deg = math.degrees(lat_rad)
+    return (lat_deg, lon_deg)
+
+
 def deg2num(lat_deg, lon_deg, zoom):
     lat_rad = math.radians(lat_deg)
     n = 2.0 ** zoom
@@ -24,9 +33,13 @@ class Boundary:
 
     def contains(self, x, y, zoom_level=None):
         if zoom_level is not None:
-            x, y = deg2num(x, y, zoom_level)
+            y, x = num2deg(x, y, zoom_level)
 
         return self.left <= x <= self.right and self.bottom <= y <= self.top
+
+    def as_metadata(self):
+        return '{},{},{},{}' \
+            .format(self.left, self.bottom, self.right, self.top)
 
 
 # left, bottom, right, top
