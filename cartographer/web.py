@@ -1,5 +1,6 @@
 from collections import defaultdict
 import io
+import logging
 import os
 from pathlib import Path
 
@@ -59,6 +60,13 @@ HTML = """
 """
 
 MAPS = defaultdict(list)
+
+
+@app.before_first_request
+def setup_logging():
+    if not app.debug:
+        app.logger.addHandler(logging.StreamHandler())
+        app.logger.setLevel(logging.INFO)
 
 
 @app.before_first_request
