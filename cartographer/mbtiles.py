@@ -1,22 +1,8 @@
-from enum import Enum
-import math
 import os
 
 import sqlite3
 
-
-def deg2num(lat_deg, lon_deg, zoom):
-    lat_rad = math.radians(lat_deg)
-    n = 2.0 ** zoom
-    xtile = int((lon_deg + 180.0) / 360.0 * n)
-    ytile = int((1.0 - math.log(math.tan(lat_rad) + (1 / math.cos(lat_rad))) / math.pi) / 2.0 * n)
-    return (xtile, int(n - 1 - ytile))
-
-
-class TilesetFormat(Enum):
-    invalid = 0
-    basic = 1
-    compressed = 2
+from .boundaries import Boundary
 
 
 class TilesetMetadata:
@@ -201,16 +187,9 @@ class Tileset:
         self.tiles = TilesetTiles(self.db)
 
     @property
-    def coordinate_bounds(self):
+    def boundary(self):
         tokens = [float(x) for x in self.bounds.split(',')]
-        return tuple(tokens)
-
-    def calculate_tile_bounds(self, zoom):
-        left, bottom, right, top = self.coordinate_bounds
-
-        bottom_left = deg2num(bottom, left, zoom)
-        top_right = deg2num(top, right, zoom)
-        return bottom_left[0], bottom_left[1], top_right[0], top_right[1]
+        return Boundary(*tokens)
 
     @property
     def mime_type(self):

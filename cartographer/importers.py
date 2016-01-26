@@ -37,25 +37,15 @@ class Importer:
             print('Warning. This failed.')
 
     def __call__(self, tileset, zoom):
-        left, bottom, right, top = tileset.calculate_tile_bounds(zoom)
-
-        print('Bounds:', left, bottom, right, top)
-
-        row_count = (right + 1) - left
-        col_count = (top + 1) - bottom
-
-        total = row_count * col_count
+        count = 2 ** zoom
+        total = count * count
 
         i = 0
-        for row in range(left, right + 1):
-            count = tileset.tiles.count(zoom=zoom, row=row)
-            if count == row_count:
-                i += col_count
-                continue
-
-            for col in range(bottom, top + 1):
-                progress = i / total
-                self.import_tile(tileset, zoom, row, col, progress)
+        for row in range(count):
+            for col in range(count):
+                if tileset.boundary.contains(row, col, zoom):
+                    progress = i / total
+                    self.import_tile(tileset, zoom, row, col, progress)
                 i += 1
 
 
