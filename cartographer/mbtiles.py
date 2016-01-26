@@ -1,4 +1,6 @@
+from enum import Enum
 import math
+import os
 
 import sqlite3
 
@@ -9,6 +11,12 @@ def deg2num(lat_deg, lon_deg, zoom):
     xtile = int((lon_deg + 180.0) / 360.0 * n)
     ytile = int((1.0 - math.log(math.tan(lat_rad) + (1 / math.cos(lat_rad))) / math.pi) / 2.0 * n)
     return (xtile, int(n - 1 - ytile))
+
+
+class TilesetFormat(Enum):
+    invalid = 0
+    basic = 1
+    compressed = 2
 
 
 class TilesetMetadata:
@@ -142,32 +150,55 @@ class TilesetTiles:
         return [row[0] for row in cursor.fetchall()]
 
 
-class Tileset:
-    def __init__(self, filename):
-        self.db = sqlite3.connect(filename)
-        self.metadata = TilesetMetadata(self.db)
-        self.tiles = TilesetTiles(self.db)
+class TilesetSchema:
+    def __init__(self, db):
+        self.db = db
 
-        self.create_schema()
-
-    def create_schema(self):
-        cursor = self.db.cursor()
-
+    def _create_metadata_table(cursor):
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS metadata (
+            CREATE TABLE metadata (
                 name TEXT,
                 value TEXT
-            );
+            )
         """)
 
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS tiles (
+            CREATE UNIQUE INDEX metadata_name ON metadata (name);
+        """)
+
+    def _create_map_table(cursor):
+        cursor.execute("""
+            CREATE TABLE map (
+                tile_id INTEGER,
                 zoom_level INTEGER,
                 tile_column INTEGER,
-                tile_row INTEGER,
                 tile_data BLOB
             );
         """)
+
+    def create(self):
+        cursor = self.db.cursor()
+
+        self._create_metadata_table(cursor)
+        self._create_tiles_table(cursor)
+
+        self.db.commit()
+
+
+class Tileset:
+    def __init__(self, filename, create=False, upgrade=False):
+        if not create and not os.path.exists(filename):
+            raise ValueError('Tileset does not exist: {}'.format(filename))
+
+        self.db = sqlite3.connect(filename)
+
+        self.schema = TilesetSchema(self.db)
+
+        if create:
+            self.schema.create()
+
+        self.metadata = TilesetMetadata(self.db)
+        self.tiles = TilesetTiles(self.db)
 
     @property
     def coordinate_bounds(self):

@@ -9,7 +9,7 @@ def create_tileset(subparsers):
         if args.description is None:
             args.description = args.name
 
-        tileset = Tileset(args.filename)
+        tileset = Tileset(args.filename, create=True)
         tileset.name = args.name
         tileset.type = args.type
         tileset.version = args.version
