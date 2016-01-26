@@ -1,4 +1,4 @@
-# # ![Logo](https://github.com/thomasleese/cartographer/raw/master/logo.png)
+# ![Logo](https://github.com/thomasleese/cartographer/raw/master/logo.png)
 
 A Python library for working with electronic tile maps.
 
