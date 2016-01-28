@@ -9,25 +9,21 @@ class Importer:
     def __init__(self, url):
         self.url = url
 
-    def get_tile_url(self, zoom, row, col):
+    def get_tile_url(self, zoom, col, row):
         l = (2 ** zoom) - 1
         nrow = l - row
         ncol = l - col
         return self.url.format(zoom=zoom, row=row, col=col, nrow=nrow,
                                ncol=ncol)
 
-    def import_tile(self, tileset, zoom, row, col, progress):
-        key = (zoom, row, col)
+    def import_tile(self, tileset, zoom, col, row, progress):
+        key = (zoom, col, row)
 
         percentage = '{} %'.format(round(progress * 100, 1))
 
-        if key in tileset:
-            print('Skipped:', zoom, row, col, percentage)
-            return
+        url = self.get_tile_url(zoom, col, row)
 
-        url = self.get_tile_url(zoom, row, col)
-
-        print('Importing:', zoom, row, col, url, percentage)
+        print('Importing:', zoom, col, row, url, percentage)
 
         res = requests.get(url)
 
@@ -45,24 +41,28 @@ class Importer:
 
         i = 0
         for row in range(count):
+            imported_cols = tileset.tiles._get_row(row, zoom)
+            #print(zoom, row, imported_cols)
+
             for col in range(count):
-                if boundary.contains(row, col, zoom):
+                if col not in imported_cols and \
+                        boundary.contains(col, row, zoom):
                     progress = i / total
-                    self.import_tile(tileset, zoom, row, col, progress)
+                    self.import_tile(tileset, zoom, col, row, progress)
                 i += 1
 
 
 class OpenStreetMapImporter(Importer):
     def __init__(self):
         super().__init__(
-            'http://tile.openstreetmap.org/{zoom}/{row}/{ncol}.png'
+            'http://tile.openstreetmap.org/{zoom}/{col}/{nrow}.png'
         )
 
 
 class SatelliteImporter(Importer):
     def __init__(self):
         super().__init__(
-            'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/Tile/{zoom}/{ncol}/{row}.jpg'
+            'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/Tile/{zoom}/{nrow}/{col}.jpg'
         )
 
 

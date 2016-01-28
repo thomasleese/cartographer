@@ -43,33 +43,33 @@ class TilesetTiles:
         self.db = db
 
     def __setitem__(self, key, value):
-        zoom, x, y = key
+        zoom, col, row = key
 
         cursor = self.db.cursor()
         cursor.execute("""
             UPDATE tiles
             SET tile_data = ?
             WHERE zoom_level = ? AND tile_column = ? AND tile_row = ?
-        """, (value, zoom, x, y))
+        """, (value, zoom, col, row))
 
         if cursor.rowcount == 0:
             cursor.execute("""
                 INSERT INTO
                     tiles (zoom_level, tile_column, tile_row, tile_data)
                 VALUES (?, ?, ?, ?)
-            """, (zoom, x, y, value))
+            """, (zoom, col, row, value))
 
         self.db.commit()
 
     def __getitem__(self, key):
-        zoom, x, y = key
+        zoom, col, row = key
 
         cursor = self.db.cursor()
         cursor.execute("""
             SELECT tile_data
             FROM tiles
             WHERE zoom_level = ? AND tile_column = ? AND tile_row = ?
-        """, (zoom, x, y))
+        """, (zoom, col, row))
 
         row = cursor.fetchone()
         if row is None:
@@ -78,26 +78,26 @@ class TilesetTiles:
             return row[0]
 
     def __contains__(self, key):
-        zoom, x, y = key
+        zoom, col, row = key
 
         cursor = self.db.cursor()
         cursor.execute("""
             SELECT COUNT(*)
             FROM tiles
             WHERE zoom_level = ? AND tile_column = ? AND tile_row = ?
-        """, (zoom, x, y))
+        """, (zoom, col, row))
 
         row = cursor.fetchone()
         return row[0] > 0
 
     def __delitem__(self, key):
-        zoom, x, y = key
+        zoom, col, row = key
 
         cursor = self.db.cursor()
         cursor.execute("""
             DELETE FROM tiles
             WHERE zoom_level = ? AND tile_column = ? AND tile_row = ?
-        """, (zoom, x, y))
+        """, (zoom, col, row))
 
         if cursor.rowcount == 0:
             raise KeyError(key)
