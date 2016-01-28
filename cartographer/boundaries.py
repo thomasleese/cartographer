@@ -1,4 +1,3 @@
-from enum import Enum
 import math
 
 
@@ -44,14 +43,5 @@ class Boundary:
 
 # left, bottom, right, top
 
-class Country(Boundary, Enum):
-    united_kingdom = (-9, 49.8, 2, 62)
-
-
-class Misc(Boundary, Enum):
-    world = (-180, -85, 180, 85)
-
-
-def find_by_string(string):
-    clazz, name = string.split('.')
-    return globals()[clazz][name]
+world = Boundary(-180, -85, 180, 85)
+united_kingdom = Boundary(-9, 49.8, 2, 62)

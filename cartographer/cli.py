@@ -41,7 +41,7 @@ def set_metadata(subparsers):
 def set_boundary(subparsers):
     def func(args):
         tileset = Tileset(args.filename)
-        boundary = boundaries.find_by_string(args.boundary)
+        boundary = getattr(boundaries, args.boundary)
         tileset.boundary = boundary
 
     parser = subparsers.add_parser('set-boundary')
@@ -67,7 +67,7 @@ def import_tiles(subparsers):
 
         boundary = None
         if args.boundary:
-            boundary = boundaries.find_by_string(args.boundary)
+            boundary = getattr(boundaries, args.boundary)
 
         for zoom in args.zoom_level:
             importer(tileset, zoom, boundary)
