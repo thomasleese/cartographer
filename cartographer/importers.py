@@ -16,14 +16,12 @@ class Importer:
         return self.url.format(zoom=zoom, row=row, col=col, nrow=nrow,
                                ncol=ncol)
 
-    def import_tile(self, tileset, zoom, col, row, progress):
+    def import_tile(self, tileset, zoom, col, row):
         key = (zoom, col, row)
-
-        percentage = '{} %'.format(round(progress * 100, 1))
 
         url = self.get_tile_url(zoom, col, row)
 
-        print('Importing:', zoom, col, row, url, percentage)
+        print('Importing {}x{}x{}: {}'.format(zoom, col, row, url))
 
         res = requests.get(url)
 
@@ -34,22 +32,17 @@ class Importer:
 
     def __call__(self, tileset, zoom, boundary=None):
         count = 2 ** zoom
-        total = count * count
 
         if boundary is None:
             boundary = tileset.boundary
 
-        i = 0
         for row in range(count):
             imported_cols = tileset.tiles._get_row(row, zoom)
-            #print(zoom, row, imported_cols)
 
             for col in range(count):
                 if col not in imported_cols and \
                         boundary.contains(col, row, zoom):
-                    progress = i / total
-                    self.import_tile(tileset, zoom, col, row, progress)
-                i += 1
+                    self.import_tile(tileset, zoom, col, row)
 
 
 class OpenStreetMapImporter(Importer):
