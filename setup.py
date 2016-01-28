@@ -1,5 +1,6 @@
 from setuptools import find_packages, setup
 
+from cartographer import __version__
 
 
 with open('README.rst') as file:
@@ -7,7 +8,7 @@ with open('README.rst') as file:
 
 setup(
     name='cartographer',
-    version='0.1.0',
+    version=__version__,
     description='A Python library for working with electronic tile maps.',
     long_description=long_description,
     url='https://github.com/thomasleese/cartographer',
@@ -17,6 +18,9 @@ setup(
     entry_points={
         'console_scripts': ['cartographer = cartographer.cli:main']
     },
+    setup_requires=[
+        'Sphinx'
+    ],
     install_requires=[
         'requests',
         'Flask'

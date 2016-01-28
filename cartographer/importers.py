@@ -1,15 +1,15 @@
-from pathlib import Path
-import subprocess
-import tempfile
-
 import requests
 
 
 class Importer:
+    """A tile importer."""
+
     def __init__(self, url):
         self.url = url
 
     def get_tile_url(self, zoom, col, row):
+        """Get the URL for a particular tile."""
+
         l = (2 ** zoom) - 1
         nrow = l - row
         ncol = l - col
@@ -17,6 +17,8 @@ class Importer:
                                ncol=ncol)
 
     def import_tile(self, tileset, zoom, col, row):
+        """Import a tile into the tileset."""
+
         key = (zoom, col, row)
 
         url = self.get_tile_url(zoom, col, row)
@@ -31,6 +33,8 @@ class Importer:
             print('Warning. This failed.')
 
     def __call__(self, tileset, zoom, boundary=None):
+        """Run the importer on a zoom level and boundary."""
+
         count = 2 ** zoom
 
         if boundary is None:

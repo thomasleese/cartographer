@@ -2,6 +2,7 @@ import math
 
 
 def num2deg(xtile, ytile, zoom):
+    """Convert x/y tile coordinates to latitude and longitude."""
     n = 2.0 ** zoom
     ytile = n - 1 - ytile
     lon_deg = xtile / n * 360.0 - 180.0
@@ -11,6 +12,7 @@ def num2deg(xtile, ytile, zoom):
 
 
 def deg2num(lat_deg, lon_deg, zoom):
+    """Convert latitude and longitude to x/y tile coordinates."""
     lat_rad = math.radians(lat_deg)
     n = 2.0 ** zoom
     xtile = int((lon_deg + 180.0) / 360.0 * n)
@@ -19,6 +21,8 @@ def deg2num(lat_deg, lon_deg, zoom):
 
 
 class Boundary:
+    """Represents a generic rectangular boundary."""
+
     def __init__(self, left, bottom, right, top):
         self.left = left
         self.bottom = bottom
@@ -26,17 +30,28 @@ class Boundary:
         self.top = top
 
     def tile_bounds(self, zoom_level):
+        """Get x/y tile coordinates for this boundary."""
+
         bottom_left = deg2num(self.bottom, self.left, zoom_level)
         top_right = deg2num(self.top, self.right, zoom_level)
         return bottom_left[0], bottom_left[1], top_right[0], top_right[1]
 
     def contains(self, x, y, zoom_level=None):
+        """
+        Check if the boundary contains the point x/y.
+
+        If ``zoom_level`` is ``None`` it is assumed that x/y will be in
+        tile coordinates, otherwise latitude and longitude.
+        """
+
         if zoom_level is not None:
             y, x = num2deg(x, y, zoom_level)
 
         return self.left <= x <= self.right and self.bottom <= y <= self.top
 
     def as_metadata(self):
+        """Return a string suitable for MBTiles metadata."""
+
         return '{},{},{},{}' \
             .format(self.left, self.bottom, self.right, self.top)
 
