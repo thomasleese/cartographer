@@ -40,10 +40,15 @@ class Importer:
         if boundary is None:
             boundary = tileset.boundary
 
-        for row in range(count):
+        min_col, min_row, max_col, max_row = boundary.tile_bounds(zoom)
+
+        max_col = min(max_col, count)
+        max_row = min(max_row, count)
+
+        for row in range(min_row, max_row):
             imported_cols = tileset.tiles._get_row(row, zoom)
 
-            for col in range(count):
+            for col in range(min_col, max_col):
                 if col not in imported_cols and \
                         boundary.contains(col, row, zoom):
                     self.import_tile(tileset, zoom, col, row)
