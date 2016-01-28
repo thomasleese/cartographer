@@ -1,6 +1,8 @@
-# ![Logo](https://github.com/thomasleese/cartographer/raw/master/logo.png)
+# ![cartographer][logo]
 
 A Python library for working with electronic tile maps.
+
+[![Docs][docs-badge]][docs]
 
 ## Installation
 
@@ -46,3 +48,7 @@ Extract a tile from the tileset.
 Serve tiles using a HTTP server.
 
     cartographer web [tiles]
+
+[logo]: https://github.com/thomasleese/cartographer/raw/master/logo.png
+[docs]: http://cartographer.readthedocs.org
+[docs-badge]: https://readthedocs.org/projects/cartographer/badge/?version=latest

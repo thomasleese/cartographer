@@ -1,7 +1,9 @@
-|Logo|
-======
+|cartographer|
+==============
 
 A Python library for working with electronic tile maps.
+
+|Docs|
 
 Installation
 ------------
@@ -68,5 +70,6 @@ Serve tiles using a HTTP server.
 
     cartographer web [tiles]
 
-.. |Logo| image:: https://github.com/thomasleese/cartographer/raw/master/logo.png
-
+.. |cartographer| image:: https://github.com/thomasleese/cartographer/raw/master/logo.png
+.. |Docs| image:: https://readthedocs.org/projects/cartographer/badge/?version=latest
+   :target: http://cartographer.readthedocs.org
