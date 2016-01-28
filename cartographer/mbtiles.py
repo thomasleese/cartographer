@@ -135,11 +135,24 @@ class TilesetTiles:
         cursor.execute('SELECT DISTINCT zoom_level FROM tiles')
         return [row[0] for row in cursor.fetchall()]
 
+    def _get_row(self, tile_row, zoom_level):
+        cursor = self.db.cursor()
+
+        cursor.execute("""
+            SELECT tile_column
+            FROM tiles
+            WHERE tile_row = ? AND zoom_level = ?
+        """, (tile_row, zoom_level))
+
+        columns = [row[0] for row in cursor.fetchall()]
+        return columns
+
 
 class TilesetSchema:
     def __init__(self, db):
         self.db = db
 
+    @staticmethod
     def _create_metadata_table(cursor):
         cursor.execute("""
             CREATE TABLE metadata (
@@ -189,7 +202,7 @@ class Tileset:
 
     @property
     def boundary(self):
-        tokens = [float(x) for x in self.bounds.split(',')]
+        tokens = [float(token) for token in self.bounds.split(',')]
         return Boundary(*tokens)
 
     @boundary.setter
