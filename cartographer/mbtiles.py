@@ -152,11 +152,12 @@ class TilesetSchema:
             CREATE UNIQUE INDEX metadata_name ON metadata (name);
         """)
 
-    def _create_map_table(cursor):
+    @staticmethod
+    def _create_tiles_table(cursor):
         cursor.execute("""
-            CREATE TABLE map (
-                tile_id INTEGER,
+            CREATE TABLE tiles (
                 zoom_level INTEGER,
+                tile_row INTEGER,
                 tile_column INTEGER,
                 tile_data BLOB
             );
