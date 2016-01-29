@@ -1,3 +1,6 @@
+sudo: required
+dist: trusty
+
 language: python
 
 python:
@@ -7,9 +10,7 @@ python:
 
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y jpegoptim
-  - wget --no-check-certificate http://pngquant.org/pngquant_1.7.1-1_i386.deb
-  - sudo dpkg -i pngquant_1.7.1-1_i386.deb
+  - sudo apt-get install -y pngquant jpegoptim
 
 install: pip install -e .
 
