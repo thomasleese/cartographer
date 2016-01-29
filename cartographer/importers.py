@@ -34,6 +34,8 @@ class Importer:
                 content = res.content
 
             tileset[key] = content
+
+            return content
         else:
             print('Warning. This failed.')
 
