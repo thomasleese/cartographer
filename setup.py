@@ -24,5 +24,6 @@ setup(
     install_requires=[
         'requests',
         'Flask'
-    ]
+    ],
+    test_suite='tests'
 )

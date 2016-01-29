@@ -16,6 +16,11 @@ API
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: cartographer.compressors
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 .. automodule:: cartographer.importers
     :members:
     :undoc-members:

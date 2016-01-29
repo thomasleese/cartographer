@@ -16,7 +16,7 @@ class Importer:
         return self.url.format(zoom=zoom, row=row, col=col, nrow=nrow,
                                ncol=ncol)
 
-    def import_tile(self, tileset, zoom, col, row):
+    def import_tile(self, tileset, zoom, col, row, compressor=None):
         """Import a tile into the tileset."""
 
         key = (zoom, col, row)
@@ -28,11 +28,16 @@ class Importer:
         res = requests.get(url)
 
         if res.status_code == requests.codes.ok:
-            tileset[key] = res.content
+            if compressor is not None:
+                content = compressor.compress(res.content)
+            else:
+                content = res.content
+
+            tileset[key] = content
         else:
             print('Warning. This failed.')
 
-    def __call__(self, tileset, zoom, boundary=None):
+    def __call__(self, tileset, zoom, boundary=None, compressor=None):
         """Run the importer on a zoom level and boundary."""
 
         count = 2 ** zoom
@@ -51,7 +56,7 @@ class Importer:
             for col in range(min_col, max_col):
                 if col not in imported_cols and \
                         boundary.contains(col, row, zoom):
-                    self.import_tile(tileset, zoom, col, row)
+                    self.import_tile(tileset, zoom, col, row, compressor)
 
 
 class OpenStreetMapImporter(Importer):
