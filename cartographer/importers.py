@@ -61,21 +61,21 @@ class Importer:
                     self.import_tile(tileset, zoom, col, row, compressor)
 
 
-class OpenStreetMapImporter(Importer):
+class OpenStreetMap(Importer):
     def __init__(self):
         super().__init__(
             'http://tile.openstreetmap.org/{zoom}/{col}/{nrow}.png'
         )
 
 
-class SatelliteImporter(Importer):
+class Satellite(Importer):
     def __init__(self):
         super().__init__(
             'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/Tile/{zoom}/{nrow}/{col}.jpg'
         )
 
 
-class OrdnanceSurveyImporter(Importer):
+class OrdnanceSurvey(Importer):
     def __init__(self, key):
         super().__init__(
             'http://ak.dynamic.t1.tiles.virtualearth.net/comp/ch/{quad_key}?mkt=en-GB&it=G,OS,BX,RL&shading=hill&n=z&og=113&key={key}&c4w=1'

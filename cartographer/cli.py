@@ -55,13 +55,13 @@ def import_tiles(subparsers):
         tileset = Tileset(args.filename)
 
         if args.url == 'osm':
-            importer = importers.OpenStreetMapImporter()
+            importer = importers.OpenStreetMap()
         elif args.url == 'satellite':
-            importer = importers.SatelliteImporter()
+            importer = importers.Satellite()
         elif args.url.startswith('os:'):
             key = args.url[3:]
             print(key)
-            importer = importers.OrdnanceSurveyImporter(key)
+            importer = importers.OrdnanceSurvey(key)
         else:
             importer = importers.Importer(args.url)
 
