@@ -220,7 +220,10 @@ class Tileset:
 
     @property
     def zoom_levels(self):
-        return self.tiles.zoom_levels
+        if 'zoom_levels' in self.metadata:
+            return [int(token) for token in self.metadata.split(',')]
+        else:
+            return self.tiles.zoom_levels
 
     def __getattr__(self, key):
         if key in TilesetMetadata.KNOWN_KEYS:
