@@ -6,6 +6,10 @@ python:
   - '3.5'
   - 'nightly'
 
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y pngquant jpegoptim
+
 install: pip install -e .
 
 script: python setup.py test

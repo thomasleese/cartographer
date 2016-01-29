@@ -49,4 +49,6 @@ Serve tiles using a HTTP server.
 
     cartographer web [tiles]
 
+[![forthebadge](http://forthebadge.com/images/badges/built-with-love.svg)](http://forthebadge.com) [![forthebadge](http://forthebadge.com/images/badges/uses-badges.svg)](http://forthebadge.com) [![forthebadge](http://forthebadge.com/images/badges/uses-git.svg)](http://forthebadge.com)
+
 [logo]: https://github.com/thomasleese/cartographer/raw/master/logo.png
