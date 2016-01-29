@@ -30,6 +30,12 @@ class TilesetMetadata:
         else:
             return row[0]
 
+    def __contains__(self, name):
+        cursor = self.db.cursor()
+        cursor.execute('SELECT COUNT(*) FROM metadata WHERE name = ?', (name,))
+        row = cursor.fetchone()
+        return row[0] > 0
+
     def __delitem__(self, name):
         cursor = self.db.cursor()
         cursor.execute('DELETE FROM metadata WHERE name = ?', (name,))
