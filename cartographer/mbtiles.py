@@ -227,7 +227,8 @@ class Tileset:
     @property
     def zoom_levels(self):
         if 'zoom_levels' in self.metadata:
-            return [int(token) for token in self.metadata.split(',')]
+            zoom_levels_str = self.metadata['zoom_levels']
+            return [int(token) for token in zoom_levels_str.split(',')]
         else:
             return self.tiles.zoom_levels
 
