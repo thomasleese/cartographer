@@ -3,7 +3,7 @@
 
 A Python library for working with electronic tile maps.
 
-|Docs|
+|Docs| |Build Status|
 
 Installation
 ------------
@@ -73,3 +73,5 @@ Serve tiles using a HTTP server.
 .. |cartographer| image:: https://github.com/thomasleese/cartographer/raw/master/logo.png
 .. |Docs| image:: https://readthedocs.org/projects/cartographer/badge/?version=latest
    :target: http://cartographer.readthedocs.org
+.. |Build Status| image:: https://travis-ci.org/thomasleese/cartographer.svg?branch=master
+   :target: https://travis-ci.org/thomasleese/cartographer
