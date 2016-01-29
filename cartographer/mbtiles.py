@@ -235,19 +235,19 @@ class Tileset:
         if key in TilesetMetadata.KNOWN_KEYS:
             return self.metadata[key]
         else:
-            super().__getattr__(key)
+            raise AttributeError(key)
 
     def __setattr__(self, key, value):
         if key in TilesetMetadata.KNOWN_KEYS:
             self.metadata[key] = value
         else:
-            super().__setattr__(key, value)
+            raise AttributeError(key)
 
     def __delattr__(self, key):
         if key in TilesetMetadata.KNOWN_KEYS:
             del self.metadata[key]
         else:
-            super().__delattr__(key)
+            raise AttributeError(key)
 
     def __setitem__(self, key, value):
         self.tiles[key] = value
