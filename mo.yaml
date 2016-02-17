@@ -1,3 +1,5 @@
+# https://github.com/thomasleese/mo
+
 tasks:
   venv:
     description: Create an approriate Python virtual environment.
