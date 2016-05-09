@@ -58,6 +58,8 @@ def import_tiles(subparsers):
             importer = importers.OpenStreetMap()
         elif args.url == 'satellite':
             importer = importers.Satellite()
+        elif args.url == 'mapquest':
+            importer = importers.MapQuest()
         elif args.url.startswith('os:'):
             key = args.url[3:]
             print(key)

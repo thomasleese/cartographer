@@ -75,6 +75,13 @@ class Satellite(Importer):
         )
 
 
+class MapQuest(Importer):
+    def __init__(self):
+        super().__init__(
+            'http://otile1.mqcdn.com/tiles/1.0.0/map/{zoom}/{col}/{nrow}.jpg'
+        )
+
+
 class OrdnanceSurvey(Importer):
     def __init__(self, key):
         super().__init__(
