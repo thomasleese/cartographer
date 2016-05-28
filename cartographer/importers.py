@@ -85,7 +85,8 @@ class MapQuest(Importer):
 class OrdnanceSurvey(Importer):
     def __init__(self, key):
         super().__init__(
-            'http://ak.dynamic.t1.tiles.virtualearth.net/comp/ch/{quad_key}?mkt=en-GB&it=G,OS,BX,RL&shading=hill&n=z&og=113&key={key}&c4w=1'
+            #'http://ak.dynamic.t1.tiles.virtualearth.net/comp/ch/{quad_key}?mkt=en-GB&it=G,OS,BX,RL&shading=hill&n=z&og=113&key={key}&c4w=1'
+            'http://ak.t2.tiles.virtualearth.net/tiles/r{quad_key}.png?g=5208&productSet=mmOS&key={key}'
         )
 
         self.key = key
