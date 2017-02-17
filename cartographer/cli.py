@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 
 from . import boundaries, importers
 from .mbtiles import Tileset
@@ -99,6 +100,30 @@ def extract_tile(subparsers):
     parser.set_defaults(func=func)
 
 
+def extract_all(subparsers):
+    def func(args):
+        tileset = Tileset(args.filename)
+
+        for zoom_level, col, row, data in tileset:
+            path = Path(args.target) / str(zoom_level) / str(col)
+            path.mkdir(parents=True, exist_ok=True)
+
+            path = path / '{row}.{format}'.format(row=row, format=tileset.format)
+
+            if path.exists():
+                continue
+
+            print(path)
+
+            with path.open('wb') as file:
+                file.write(data)
+
+    parser = subparsers.add_parser('extract-all')
+    parser.add_argument('filename')
+    parser.add_argument('target')
+    parser.set_defaults(func=func)
+
+
 def web(subparsers):
     def func(args):
         from .web import app
@@ -119,6 +144,7 @@ def main():
     set_metadata(subparsers)
     set_boundary(subparsers)
     extract_tile(subparsers)
+    extract_all(subparsers)
     web(subparsers)
 
     args = parser.parse_args()

@@ -135,6 +135,15 @@ class TilesetTiles:
         row = cursor.fetchone()
         return row[0]
 
+    def all(self):
+        cursor = self.db.cursor()
+        cursor.execute("""
+            SELECT zoom_level, tile_column, tile_row, tile_data
+            FROM tiles
+        """)
+
+        yield from cursor
+
     @property
     def zoom_levels(self):
         cursor = self.db.cursor()
@@ -261,3 +270,6 @@ class Tileset:
 
     def __contains__(self, key):
         return key in self.tiles
+
+    def __iter__(self):
+        yield from self.tiles.all()
