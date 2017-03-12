@@ -108,7 +108,9 @@ def extract_all(subparsers):
             path = Path(args.target) / str(zoom_level) / str(col)
             path.mkdir(parents=True, exist_ok=True)
 
-            path = path / '{row}.{format}'.format(row=row, format=tileset.format)
+            nrow = (2 ** zoom_level) - 1 - row
+
+            path = path / '{nrow}.{format}'.format(nrow=nrow, format=tileset.format)
 
             if path.exists():
                 continue
